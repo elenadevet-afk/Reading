@@ -4,117 +4,166 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { font-family: 'Comic Sans MS', sans-serif; background: transparent; margin: 0; display: flex; flex-direction: column; align-items: center; overflow: hidden; }
-        #admin-panel { background: #eee; padding: 10px; border-radius: 10px; margin-bottom: 10px; display: none; gap: 5px; font-size: 12px; }
-        .game-card { background: white; border-radius: 25px; padding: 20px; box-shadow: 0 8px 16px rgba(0,0,0,0.1); text-align: center; width: 90%; max-width: 400px; border: 4px solid #FFD700; }
-        #word-img { width: 120px; height: 120px; object-fit: contain; margin-bottom: 15px; }
-        .slots { display: flex; gap: 8px; justify-content: center; margin: 20px 0; min-height: 60px; }
-        .slot { width: 50px; height: 60px; border: 3px dashed #ddd; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; text-transform: uppercase; }
-        .pool { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 10px; }
-        .letter { width: 45px; height: 55px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: bold; color: white; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
-        .vowel { background: #FF4B4B; box-shadow: 0 4px #CC0000; }
-        .consonant { background: #4B79FF; box-shadow: 0 4px #0033CC; }
+        :root { --vowel: #FF4B4B; --cons: #4B79FF; --gold: #FFD700; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #fdfdfd; margin: 0; display: flex; flex-direction: column; align-items: center; padding: 10px; }
+        
+        /* Панель настроек */
+        #setup-panel { background: #333; color: white; padding: 15px; border-radius: 15px; margin-bottom: 15px; width: 90%; max-width: 500px; display: block; }
+        #setup-panel input { width: 80%; padding: 8px; border-radius: 5px; border: none; margin: 5px 0; }
+        .btn { cursor: pointer; border: none; border-radius: 8px; padding: 8px 15px; font-weight: bold; transition: 0.2s; }
+        .btn-main { background: var(--gold); color: #333; }
+        
+        /* Игровая зона */
+        #game-zone { display: none; width: 100%; max-width: 450px; text-align: center; background: white; border: 5px solid var(--gold); border-radius: 30px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .word-img { width: 150px; height: 150px; object-fit: contain; margin: 10px; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.1)); }
+        
+        .slots { display: flex; gap: 8px; justify-content: center; margin: 20px 0; }
+        .slot { width: 45px; height: 55px; border: 2px solid #ddd; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: bold; text-transform: uppercase; background: #fafafa; }
+        
+        .pool { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; min-height: 60px; }
+        .letter { width: 45px; height: 55px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: bold; color: white; cursor: pointer; text-transform: uppercase; transition: 0.2s; user-select: none; }
+        .vowel { background: var(--vowel); box-shadow: 0 4px #b33333; }
+        .consonant { background: var(--cons); box-shadow: 0 4px #3355b3; }
         .letter:active { transform: translateY(4px); box-shadow: none; }
-        .hint-anim { animation: pulse 0.6s 3; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); border: 2px solid gold; } 100% { transform: scale(1); } }
-        button.admin-btn { position: absolute; top: 0; right: 0; opacity: 0.3; font-size: 10px; }
-        .success-msg { color: #28a745; font-weight: bold; display: none; margin-top: 10px; font-size: 20px; }
+        
+        .nav-btns { display: flex; justify-content: space-between; margin-top: 20px; width: 100%; }
+        .hint-btn { background: #eee; font-size: 14px; }
+        .success { color: #28a745; font-size: 24px; font-weight: bold; margin: 10px; min-height: 30px; }
     </style>
 </head>
 <body>
 
-    <button class="admin-btn" onclick="toggleAdmin()">⚙️</button>
-    
-    <div id="admin-panel">
-        <input type="text" id="new-word" placeholder="Word (e.g. DOG)">
-        <input type="text" id="new-img" placeholder="Image URL">
-        <button onclick="updateGame()">Apply</button>
+    <div id="setup-panel">
+        <strong>⚙️ Настройка слов</strong><br>
+        <small>Введи слова через запятую:</small><br>
+        <input type="text" id="words-input" value="CAT, DOG, FROG, SUN, MILK">
+        <button class="btn btn-main" onclick="startLearning()">Запустить обучение</button>
+        <button class="btn" style="background: #666; color: white;" onclick="toggleEditor()">Скрыть</button>
     </div>
 
-    <div class="game-card">
-        <img id="word-img" src="https://cdn-icons-png.flaticon.com/512/616/616408.png" alt="word">
+    <button id="show-editor" style="display:none; position: fixed; top: 0; right: 0; opacity: 0.5;" onclick="toggleEditor()">⚙️</button>
+
+    <div id="game-zone">
+        <div id="counter" style="font-size: 12px; color: #999;">1 / 5</div>
+        <img id="word-img" class="word-img" src="" alt="">
+        <div id="success-msg" class="success"></div>
         <div class="slots" id="slots-container"></div>
         <div class="pool" id="pool-container"></div>
-        <div id="success" class="success-msg">Well done! 🎉</div>
-        <button onclick="showHint()" style="margin-top:15px; border:none; background:#FFD700; border-radius:15px; padding:5px 15px; cursor:pointer;">Hint 💡</button>
+        
+        <div class="nav-btns">
+            <button class="btn" onclick="prevWord()">⬅️</button>
+            <button class="btn hint-btn" onclick="showHint()">Hint 💡</button>
+            <button class="btn" onclick="nextWord()">➡️</button>
+        </div>
     </div>
 
 <script>
-    let currentWord = "CAT";
+    let words = [];
+    let currentIndex = 0;
     let step = 0;
     const vowels = "AEIOUY";
 
-    function toggleAdmin() {
-        const panel = document.getElementById('admin-panel');
-        panel.style.display = panel.style.display === 'flex' ? 'none' : 'flex';
+    function toggleEditor() {
+        const panel = document.getElementById('setup-panel');
+        const showBtn = document.getElementById('show-editor');
+        panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        showBtn.style.display = panel.style.display === 'none' ? 'block' : 'none';
     }
 
-    function updateGame() {
-        const w = document.getElementById('new-word').value.toUpperCase();
-        const img = document.getElementById('new-img').value;
-        if(w) currentWord = w;
-        if(img) document.getElementById('word-img').src = img;
-        resetGame();
-        toggleAdmin();
+    function startLearning() {
+        const input = document.getElementById('words-input').value;
+        words = input.split(',').map(s => s.trim().toUpperCase()).filter(s => s.length > 0);
+        if (words.length > 0) {
+            currentIndex = 0;
+            document.getElementById('game-zone').style.display = 'block';
+            loadWord();
+            toggleEditor();
+        }
     }
 
-    function speak(text, rate = 0.8) {
+    function loadWord() {
+        const word = words[currentIndex];
+        step = 0;
+        document.getElementById('success-msg').innerText = '';
+        document.getElementById('counter').innerText = `${currentIndex + 1} / ${words.length}`;
+        
+        // Авто-картинка (используем сервис прозрачных иконок)
+        document.getElementById('word-img').src = `https://api.dicebear.com/7.x/identicon/svg?seed=${word}`; // Заглушка
+        // Попытка взять реальную иконку
+        document.getElementById('word-img').src = `https://img.icons8.com/color/200/${word.toLowerCase()}.png`;
+
+        const slots = document.getElementById('slots-container');
+        const pool = document.getElementById('pool-container');
+        slots.innerHTML = '';
+        pool.innerHTML = '';
+
+        word.split('').forEach(() => {
+            const s = document.createElement('div');
+            s.className = 'slot';
+            slots.appendChild(s);
+        });
+
+        const shuffled = word.split('').sort(() => Math.random() - 0.5);
+        shuffled.forEach(char => {
+            const l = document.createElement('div');
+            const isVowel = vowels.includes(char);
+            l.className = `letter ${isVowel ? 'vowel' : 'consonant'}`;
+            l.innerText = char;
+            l.onclick = () => handleLetterClick(char, l);
+            pool.appendChild(l);
+        });
+    }
+
+    function handleLetterClick(char, element) {
+        const word = words[currentIndex];
+        speak(char, 0.8);
+
+        if (char === word[step]) {
+            const slots = document.getElementsByClassName('slot');
+            slots[step].innerText = char;
+            slots[step].style.borderColor = vowels.includes(char) ? 'var(--vowel)' : 'var(--cons)';
+            element.style.visibility = 'hidden';
+            step++;
+
+            if (step === word.length) {
+                document.getElementById('success-msg').innerText = 'EXCELLENT! 🎉';
+                speak(word, 0.6);
+            }
+        }
+    }
+
+    function speak(text, rate) {
         const msg = new SpeechSynthesisUtterance(text);
         msg.lang = 'en-US';
         msg.rate = rate;
         window.speechSynthesis.speak(msg);
     }
 
-    function resetGame() {
-        step = 0;
-        document.getElementById('success').style.display = 'none';
-        const slots = document.getElementById('slots-container');
-        const pool = document.getElementById('pool-container');
-        slots.innerHTML = '';
-        pool.innerHTML = '';
-
-        currentWord.split('').forEach(() => {
-            const s = document.createElement('div');
-            s.className = 'slot';
-            slots.appendChild(s);
-        });
-
-        const shuffled = currentWord.split('').sort(() => Math.random() - 0.5);
-        shuffled.forEach(char => {
-            const l = document.createElement('div');
-            const isVowel = vowels.includes(char);
-            l.className = `letter ${isVowel ? 'vowel' : 'consonant'}`;
-            l.innerText = char;
-            l.onclick = () => {
-                speak(char);
-                if(char === currentWord[step]) {
-                    document.getElementsByClassName('slot')[step].innerText = char;
-                    document.getElementsByClassName('slot')[step].style.borderColor = isVowel ? '#FF4B4B' : '#4B79FF';
-                    l.style.visibility = 'hidden';
-                    step++;
-                    if(step === currentWord.length) {
-                        document.getElementById('success').style.display = 'block';
-                        speak(currentWord, 0.6);
-                    }
-                }
-            };
-            pool.appendChild(l);
-        });
-    }
-
     function showHint() {
-        const nextChar = currentWord[step];
-        const items = document.querySelectorAll('.letter');
-        for (let item of items) {
-            if (item.innerText === nextChar && item.style.visibility !== 'hidden') {
-                item.classList.add('hint-anim');
-                setTimeout(() => item.classList.remove('hint-anim'), 2000);
+        const target = words[currentIndex][step];
+        const letters = document.querySelectorAll('.letter');
+        for (let l of letters) {
+            if (l.innerText === target && l.style.visibility !== 'hidden') {
+                l.style.transform = "scale(1.2)";
+                setTimeout(() => l.style.transform = "scale(1)", 500);
                 break;
             }
         }
     }
 
-    resetGame();
+    function nextWord() {
+        if (currentIndex < words.length - 1) {
+            currentIndex++;
+            loadWord();
+        }
+    }
+
+    function prevWord() {
+        if (currentIndex > 0) {
+            currentIndex--;
+            loadWord();
+        }
+    }
 </script>
 </body>
 </html>
