@@ -1,7 +1,7 @@
-<div id="game-container" style="width:100%; min-height:480px; background:#fff; border:3px solid #FFD700; border-radius:20px; font-family:sans-serif; padding:15px; text-align:center; box-sizing:border-box;">
+<div id="game-container" style="width:100%; min-height:480px; background:transparent; border:3px solid #FFD700; border-radius:20px; font-family:sans-serif; padding:15px; text-align:center; box-sizing:border-box;">
     
-    <div id="s-view">
-        <h3 style="margin-top:0">Editor: Settings</h3>
+    <div id="s-view" style="background: rgba(255,255,255,0.9); padding: 15px; border-radius: 15px;">
+        <h3 style="margin-top:0">Editor: Design & Words</h3>
         <div style="text-align:left; display:inline-block; width:90%;">
             <label style="font-size:12px;">Words (comma separated):</label>
             <input type="text" id="w-in" value="CAT, DOG, WOLF, FOX" style="width:100%; padding:8px; margin-bottom:10px; border:1px solid #ccc; border-radius:8px;">
@@ -12,13 +12,17 @@
                     <input type="color" id="c-border" value="#FFD700" style="width:100%; height:30px; cursor:pointer;">
                 </div>
                 <div style="flex:1">
-                    <label style="font-size:12px;">Background Color:</label><br>
+                    <label style="font-size:12px;">App Background:</label><br>
                     <input type="color" id="c-bg" value="#ffffff" style="width:100%; height:30px; cursor:pointer;">
                 </div>
             </div>
             
-            <label style="font-size:11px; color:#888;">
-                <input type="checkbox" id="no-border"> Transparent Border
+            <label style="font-size:12px; cursor:pointer;">
+                <input type="checkbox" id="trans-bg"> 🏁 **Fully Transparent Background**
+            </label>
+            <br>
+            <label style="font-size:12px; cursor:pointer;">
+                <input type="checkbox" id="no-border"> 🚫 **No Border**
             </label>
         </div>
         <br><br>
@@ -26,19 +30,19 @@
     </div>
 
     <div id="p-view" style="display:none">
-        <div id="cnt" style="font-size:12px; color:#999"></div>
-        <img id="img" src="" style="width:120px; height:120px; object-fit:contain; margin:10px auto; display:block">
-        <div id="win" style="height:30px; color:#28a745; font-weight:bold; font-size:20px"></div>
+        <div id="cnt" style="font-size:12px; color:#999; text-shadow: 1px 1px 1px #fff;"></div>
+        <img id="img" src="" style="width:120px; height:120px; object-fit:contain; margin:10px auto; display:block; filter: drop-shadow(2px 2px 5px rgba(0,0,0,0.2));">
+        <div id="win" style="height:30px; color:#28a745; font-weight:bold; font-size:20px; text-shadow: 1px 1px 1px #fff;"></div>
         
         <div id="slts" style="display:flex; gap:8px; justify-content:center; margin:15px 0; flex-wrap:wrap;"></div>
         <div id="pool" style="display:flex; gap:10px; justify-content:center; margin:15px 0; flex-wrap:wrap"></div>
 
         <div style="display:flex; justify-content:space-between; margin-top:20px">
-            <button id="prev" style="background:rgba(0,0,0,0.05); border:none; width:40px; height:40px; border-radius:50%; cursor:pointer">⬅️</button>
-            <button id="hint" style="background:#fff8dc; border:1px solid #FFD700; padding:5px 15px; border-radius:15px; cursor:pointer; font-weight:bold;">HINT 💡</button>
-            <button id="next" style="background:rgba(0,0,0,0.05); border:none; width:40px; height:40px; border-radius:50%; cursor:pointer">➡️</button>
+            <button id="prev" style="background:rgba(255,255,255,0.7); border:1px solid #ccc; width:40px; height:40px; border-radius:50%; cursor:pointer">⬅️</button>
+            <button id="hint" style="background:#fff8dc; border:1px solid #FFD700; padding:5px 15px; border-radius:15px; cursor:pointer; font-weight:bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">HINT 💡</button>
+            <button id="next" style="background:rgba(255,255,255,0.7); border:1px solid #ccc; width:40px; height:40px; border-radius:50%; cursor:pointer">➡️</button>
         </div>
-        <button id="back" style="margin-top:15px; background:none; border:none; color:#bbb; text-decoration:underline; cursor:pointer; font-size:12px">Edit settings</button>
+        <button id="back" style="margin-top:15px; background:rgba(255,255,255,0.5); border:none; color:#333; text-decoration:underline; cursor:pointer; font-size:11px; padding:2px 5px; border-radius:5px;">Settings</button>
     </div>
 
 <script>
@@ -69,7 +73,7 @@
 
         w.split('').forEach(()=>{
             const d=document.createElement('div');
-            d.style="width:40px; height:50px; border:2px solid #ddd; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:bold; background:#fff;";
+            d.style="width:40px; height:50px; border:2px solid #ddd; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:bold; background:#fff; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);";
             sa.appendChild(d);
         });
 
@@ -77,7 +81,7 @@
             const b=document.createElement('div');
             const cl=v.includes(c)?"#FF4B4B":"#4B79FF";
             b.innerText=c;
-            b.style=`width:40px; height:50px; background:${cl}; color:#fff; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:bold; cursor:pointer; box-shadow:0 3px rgba(0,0,0,0.2)`;
+            b.style=`width:40px; height:50px; background:${cl}; color:#fff; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:bold; cursor:pointer; box-shadow:0 4px rgba(0,0,0,0.2)`;
             b.onclick=()=>{
                 sp(c);
                 if(c===w[cs]){
@@ -93,15 +97,15 @@
     };
 
     document.getElementById('go-btn').onclick=()=>{
-        // Применяем стили
         const container = document.getElementById('game-container');
         const borderColor = document.getElementById('c-border').value;
         const bgColor = document.getElementById('c-bg').value;
+        const isTrans = document.getElementById('trans-bg').checked;
         const noBorder = document.getElementById('no-border').checked;
 
-        container.style.backgroundColor = bgColor;
+        container.style.backgroundColor = isTrans ? 'transparent' : bgColor;
         container.style.borderColor = noBorder ? 'transparent' : borderColor;
-        if(noBorder) container.style.boxShadow = 'none';
+        if(noBorder && isTrans) container.style.boxShadow = 'none';
 
         ws=document.getElementById('w-in').value.split(',').map(x=>x.trim().toUpperCase()).filter(x=>x);
         if(ws.length){ document.getElementById('s-view').style.display='none'; document.getElementById('p-view').style.display='block'; rv(); }
@@ -121,4 +125,3 @@
     };
 })();
 </script>
-</div>
