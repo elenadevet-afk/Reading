@@ -1,169 +1,124 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        :root { --vowel: #FF4B4B; --cons: #4B79FF; --gold: #FFD700; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #fdfdfd; margin: 0; display: flex; flex-direction: column; align-items: center; padding: 10px; }
-        
-        /* Панель настроек */
-        #setup-panel { background: #333; color: white; padding: 15px; border-radius: 15px; margin-bottom: 15px; width: 90%; max-width: 500px; display: block; }
-        #setup-panel input { width: 80%; padding: 8px; border-radius: 5px; border: none; margin: 5px 0; }
-        .btn { cursor: pointer; border: none; border-radius: 8px; padding: 8px 15px; font-weight: bold; transition: 0.2s; }
-        .btn-main { background: var(--gold); color: #333; }
-        
-        /* Игровая зона */
-        #game-zone { display: none; width: 100%; max-width: 450px; text-align: center; background: white; border: 5px solid var(--gold); border-radius: 30px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .word-img { width: 150px; height: 150px; object-fit: contain; margin: 10px; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.1)); }
-        
-        .slots { display: flex; gap: 8px; justify-content: center; margin: 20px 0; }
-        .slot { width: 45px; height: 55px; border: 2px solid #ddd; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: bold; text-transform: uppercase; background: #fafafa; }
-        
-        .pool { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; min-height: 60px; }
-        .letter { width: 45px; height: 55px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: bold; color: white; cursor: pointer; text-transform: uppercase; transition: 0.2s; user-select: none; }
-        .vowel { background: var(--vowel); box-shadow: 0 4px #b33333; }
-        .consonant { background: var(--cons); box-shadow: 0 4px #3355b3; }
-        .letter:active { transform: translateY(4px); box-shadow: none; }
-        
-        .nav-btns { display: flex; justify-content: space-between; margin-top: 20px; width: 100%; }
-        .hint-btn { background: #eee; font-size: 14px; }
-        .success { color: #28a745; font-size: 24px; font-weight: bold; margin: 10px; min-height: 30px; }
-    </style>
-</head>
-<body>
-
-    <div id="setup-panel">
-        <strong>⚙️ Настройка слов</strong><br>
-        <small>Введи слова через запятую:</small><br>
-        <input type="text" id="words-input" value="CAT, DOG, FROG, SUN, MILK">
-        <button class="btn btn-main" onclick="startLearning()">Запустить обучение</button>
-        <button class="btn" style="background: #666; color: white;" onclick="toggleEditor()">Скрыть</button>
+<div id="game-container" style="width:100%; min-height:480px; background:#fff; border:3px solid #FFD700; border-radius:20px; font-family:sans-serif; padding:15px; text-align:center; box-sizing:border-box;">
+    
+    <div id="s-view">
+        <h3 style="margin-top:0">Editor: Settings</h3>
+        <div style="text-align:left; display:inline-block; width:90%;">
+            <label style="font-size:12px;">Words (comma separated):</label>
+            <input type="text" id="w-in" value="CAT, DOG, WOLF, FOX" style="width:100%; padding:8px; margin-bottom:10px; border:1px solid #ccc; border-radius:8px;">
+            
+            <div style="display:flex; gap:10px; margin-bottom:15px;">
+                <div style="flex:1">
+                    <label style="font-size:12px;">Border Color:</label><br>
+                    <input type="color" id="c-border" value="#FFD700" style="width:100%; height:30px; cursor:pointer;">
+                </div>
+                <div style="flex:1">
+                    <label style="font-size:12px;">Background Color:</label><br>
+                    <input type="color" id="c-bg" value="#ffffff" style="width:100%; height:30px; cursor:pointer;">
+                </div>
+            </div>
+            
+            <label style="font-size:11px; color:#888;">
+                <input type="checkbox" id="no-border"> Transparent Border
+            </label>
+        </div>
+        <br><br>
+        <button id="go-btn" style="padding:10px 40px; background:#FFD700; border:none; border-radius:20px; font-weight:bold; cursor:pointer; box-shadow:0 4px #ccac00;">START</button>
     </div>
 
-    <button id="show-editor" style="display:none; position: fixed; top: 0; right: 0; opacity: 0.5;" onclick="toggleEditor()">⚙️</button>
-
-    <div id="game-zone">
-        <div id="counter" style="font-size: 12px; color: #999;">1 / 5</div>
-        <img id="word-img" class="word-img" src="" alt="">
-        <div id="success-msg" class="success"></div>
-        <div class="slots" id="slots-container"></div>
-        <div class="pool" id="pool-container"></div>
+    <div id="p-view" style="display:none">
+        <div id="cnt" style="font-size:12px; color:#999"></div>
+        <img id="img" src="" style="width:120px; height:120px; object-fit:contain; margin:10px auto; display:block">
+        <div id="win" style="height:30px; color:#28a745; font-weight:bold; font-size:20px"></div>
         
-        <div class="nav-btns">
-            <button class="btn" onclick="prevWord()">⬅️</button>
-            <button class="btn hint-btn" onclick="showHint()">Hint 💡</button>
-            <button class="btn" onclick="nextWord()">➡️</button>
+        <div id="slts" style="display:flex; gap:8px; justify-content:center; margin:15px 0; flex-wrap:wrap;"></div>
+        <div id="pool" style="display:flex; gap:10px; justify-content:center; margin:15px 0; flex-wrap:wrap"></div>
+
+        <div style="display:flex; justify-content:space-between; margin-top:20px">
+            <button id="prev" style="background:rgba(0,0,0,0.05); border:none; width:40px; height:40px; border-radius:50%; cursor:pointer">⬅️</button>
+            <button id="hint" style="background:#fff8dc; border:1px solid #FFD700; padding:5px 15px; border-radius:15px; cursor:pointer; font-weight:bold;">HINT 💡</button>
+            <button id="next" style="background:rgba(0,0,0,0.05); border:none; width:40px; height:40px; border-radius:50%; cursor:pointer">➡️</button>
         </div>
+        <button id="back" style="margin-top:15px; background:none; border:none; color:#bbb; text-decoration:underline; cursor:pointer; font-size:12px">Edit settings</button>
     </div>
 
 <script>
-    let words = [];
-    let currentIndex = 0;
-    let step = 0;
-    const vowels = "AEIOUY";
+(function(){
+    let ws=[], ci=0, cs=0;
+    const v="AEIOUY", s=window.speechSynthesis;
 
-    function toggleEditor() {
-        const panel = document.getElementById('setup-panel');
-        const showBtn = document.getElementById('show-editor');
-        panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-        showBtn.style.display = panel.style.display === 'none' ? 'block' : 'none';
-    }
+    const sp=(t,r=0.8)=>{
+        const m=new SpeechSynthesisUtterance(t);
+        m.lang='en-US'; m.rate=r; s.speak(m);
+    };
 
-    function startLearning() {
-        const input = document.getElementById('words-input').value;
-        words = input.split(',').map(s => s.trim().toUpperCase()).filter(s => s.length > 0);
-        if (words.length > 0) {
-            currentIndex = 0;
-            document.getElementById('game-zone').style.display = 'block';
-            loadWord();
-            toggleEditor();
-        }
-    }
-
-    function loadWord() {
-        const word = words[currentIndex];
-        step = 0;
-        document.getElementById('success-msg').innerText = '';
-        document.getElementById('counter').innerText = `${currentIndex + 1} / ${words.length}`;
+    const rv=()=>{
+        const w=ws[ci]; cs=0;
+        document.getElementById('win').innerText="";
+        document.getElementById('cnt').innerText=(ci+1)+"/"+ws.length;
         
-        // Авто-картинка (используем сервис прозрачных иконок)
-        document.getElementById('word-img').src = `https://api.dicebear.com/7.x/identicon/svg?seed=${word}`; // Заглушка
-        // Попытка взять реальную иконку
-        document.getElementById('word-img').src = `https://img.icons8.com/color/200/${word.toLowerCase()}.png`;
+        const imageElement = document.getElementById('img');
+        imageElement.src = "https://img.icons8.com/color/150/" + w.toLowerCase() + ".png";
+        
+        imageElement.onerror = function() {
+            this.src = "https://img.icons8.com/plasticine/150/" + w.toLowerCase() + ".png";
+            this.onerror = function() { this.src = "https://img.icons8.com/color/150/abc.png"; };
+        };
+        
+        const sa=document.getElementById('slts'), pa=document.getElementById('pool');
+        sa.innerHTML=""; pa.innerHTML="";
 
-        const slots = document.getElementById('slots-container');
-        const pool = document.getElementById('pool-container');
-        slots.innerHTML = '';
-        pool.innerHTML = '';
-
-        word.split('').forEach(() => {
-            const s = document.createElement('div');
-            s.className = 'slot';
-            slots.appendChild(s);
+        w.split('').forEach(()=>{
+            const d=document.createElement('div');
+            d.style="width:40px; height:50px; border:2px solid #ddd; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:bold; background:#fff;";
+            sa.appendChild(d);
         });
 
-        const shuffled = word.split('').sort(() => Math.random() - 0.5);
-        shuffled.forEach(char => {
-            const l = document.createElement('div');
-            const isVowel = vowels.includes(char);
-            l.className = `letter ${isVowel ? 'vowel' : 'consonant'}`;
-            l.innerText = char;
-            l.onclick = () => handleLetterClick(char, l);
-            pool.appendChild(l);
+        w.split('').sort(()=>Math.random()-0.5).forEach(c=>{
+            const b=document.createElement('div');
+            const cl=v.includes(c)?"#FF4B4B":"#4B79FF";
+            b.innerText=c;
+            b.style=`width:40px; height:50px; background:${cl}; color:#fff; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:bold; cursor:pointer; box-shadow:0 3px rgba(0,0,0,0.2)`;
+            b.onclick=()=>{
+                sp(c);
+                if(c===w[cs]){
+                    sa.children[cs].innerText=c;
+                    sa.children[cs].style.borderColor=cl;
+                    b.style.visibility="hidden";
+                    cs++;
+                    if(cs===w.length) setTimeout(()=>{ document.getElementById('win').innerText="GREAT! 🎉"; sp(w,0.6); }, 800);
+                }
+            };
+            pa.appendChild(b);
         });
-    }
+    };
 
-    function handleLetterClick(char, element) {
-        const word = words[currentIndex];
-        speak(char, 0.8);
+    document.getElementById('go-btn').onclick=()=>{
+        // Применяем стили
+        const container = document.getElementById('game-container');
+        const borderColor = document.getElementById('c-border').value;
+        const bgColor = document.getElementById('c-bg').value;
+        const noBorder = document.getElementById('no-border').checked;
 
-        if (char === word[step]) {
-            const slots = document.getElementsByClassName('slot');
-            slots[step].innerText = char;
-            slots[step].style.borderColor = vowels.includes(char) ? 'var(--vowel)' : 'var(--cons)';
-            element.style.visibility = 'hidden';
-            step++;
+        container.style.backgroundColor = bgColor;
+        container.style.borderColor = noBorder ? 'transparent' : borderColor;
+        if(noBorder) container.style.boxShadow = 'none';
 
-            if (step === word.length) {
-                document.getElementById('success-msg').innerText = 'EXCELLENT! 🎉';
-                speak(word, 0.6);
+        ws=document.getElementById('w-in').value.split(',').map(x=>x.trim().toUpperCase()).filter(x=>x);
+        if(ws.length){ document.getElementById('s-view').style.display='none'; document.getElementById('p-view').style.display='block'; rv(); }
+    };
+
+    document.getElementById('next').onclick=()=>{ ci=(ci+1)%ws.length; rv(); };
+    document.getElementById('prev').onclick=()=>{ ci=(ci-1+ws.length)%ws.length; rv(); };
+    document.getElementById('back').onclick=()=>{ document.getElementById('s-view').style.display='block'; document.getElementById('p-view').style.display='none'; };
+    
+    document.getElementById('hint').onclick=()=>{
+        const t=ws[ci][cs];
+        [...document.getElementById('pool').children].forEach(b=>{
+            if(b.innerText===t && b.style.visibility!=='hidden'){
+                b.style.transform="scale(1.2)"; setTimeout(()=>b.style.transform="scale(1)", 500);
             }
-        }
-    }
-
-    function speak(text, rate) {
-        const msg = new SpeechSynthesisUtterance(text);
-        msg.lang = 'en-US';
-        msg.rate = rate;
-        window.speechSynthesis.speak(msg);
-    }
-
-    function showHint() {
-        const target = words[currentIndex][step];
-        const letters = document.querySelectorAll('.letter');
-        for (let l of letters) {
-            if (l.innerText === target && l.style.visibility !== 'hidden') {
-                l.style.transform = "scale(1.2)";
-                setTimeout(() => l.style.transform = "scale(1)", 500);
-                break;
-            }
-        }
-    }
-
-    function nextWord() {
-        if (currentIndex < words.length - 1) {
-            currentIndex++;
-            loadWord();
-        }
-    }
-
-    function prevWord() {
-        if (currentIndex > 0) {
-            currentIndex--;
-            loadWord();
-        }
-    }
+        });
+    };
+})();
 </script>
-</body>
-</html>
+</div>
